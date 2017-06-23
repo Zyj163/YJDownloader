@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'YJDownloader_Example' do
+  pod 'YJDownloader', :path => '../'
+
+  target 'YJDownloader_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
