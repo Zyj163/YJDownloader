@@ -1,0 +1,6 @@
+framework module YJDownloader {
+  umbrella header "YJDownloader-umbrella.h"
+
+  export *
+  module * { export * }
+}

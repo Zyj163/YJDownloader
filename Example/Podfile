@@ -3,6 +3,8 @@ use_frameworks!
 target 'YJDownloader_Example' do
   pod 'YJDownloader', :path => '../'
 
+pod 'CryptoSwift'
+
   target 'YJDownloader_Tests' do
     inherit! :search_paths
 
