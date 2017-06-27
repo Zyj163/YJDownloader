@@ -5,6 +5,8 @@
 [![License](https://img.shields.io/cocoapods/l/YJDownloader.svg?style=flat)](http://cocoapods.org/pods/YJDownloader)
 [![Platform](https://img.shields.io/cocoapods/p/YJDownloader.svg?style=flat)](http://cocoapods.org/pods/YJDownloader)
 
+![image](https://github.com/Zyj163/YJDownloader/blob/master/Example/YJDownloader.gif) 
+
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
