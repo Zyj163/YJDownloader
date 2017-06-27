@@ -2,7 +2,7 @@
   "name": "YJDownloader",
   "version": "0.0.1",
   "summary": "YJDownloader",
-  "description": "多任务下载、断点下载.",
+  "description": "YJDownloaders 多任务下载、断点下载.",
   "homepage": "https://github.com/Zyj163/YJDownloader",
   "license": {
     "type": "MIT",

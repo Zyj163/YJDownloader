@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1BC72C529B1E083533C12CB3 /* Pods_YJDownloader_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E17B9E7EFEE3DE6B0B2BBCC /* Pods_YJDownloader_Example.framework */; };
+		578A376A1F0265CE00320392 /* YJDownloader.gif in Resources */ = {isa = PBXBuildFile; fileRef = 578A37691F0265CE00320392 /* YJDownloader.gif */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
@@ -31,6 +32,7 @@
 		024F8D316226938B3D105359 /* YJDownloader.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = YJDownloader.podspec; path = ../YJDownloader.podspec; sourceTree = "<group>"; };
 		3E17B9E7EFEE3DE6B0B2BBCC /* Pods_YJDownloader_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YJDownloader_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		51B8BACDB37E8A18935B3044 /* Pods-YJDownloader_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YJDownloader_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YJDownloader_Example/Pods-YJDownloader_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		578A37691F0265CE00320392 /* YJDownloader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = YJDownloader.gif; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* YJDownloader_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YJDownloader_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				024F8D316226938B3D105359 /* YJDownloader.podspec */,
 				D9BCDE538D2563AF7FD99BFF /* README.md */,
 				73742E1E3343A65250915358 /* LICENSE */,
+				578A37691F0265CE00320392 /* YJDownloader.gif */,
 			);
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
@@ -250,6 +253,7 @@
 			files = (
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
+				578A376A1F0265CE00320392 /* YJDownloader.gif in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

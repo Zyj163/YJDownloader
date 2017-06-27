@@ -17,7 +17,7 @@ YJDownloader is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod "YJDownloader"
+pod "YJDownloader", :git => 'https://github.com/Zyj163/YJDownloader.git'
 ```
 
 ## Author

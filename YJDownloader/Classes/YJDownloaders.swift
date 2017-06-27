@@ -10,7 +10,26 @@ import Foundation
 import CryptoSwift
 
 public class YJDownloaders: NSObject {
+	
+	/// 单例对象
 	public static let downloaders = YJDownloaders()
+	
+	/// 最大并发数
+	public var maxRunningCount: Int = 3 {
+		didSet {
+			queue.maxRunningCount = maxRunningCount
+		}
+	}
+	
+	/// 默认临时目录
+	public var defaultTmpPath: String {
+		return YJFileTool.tmp().appending("/yjdownloads")
+	}
+	
+	/// 默认存储目录
+	public var defaultCachePath: String {
+		return YJFileTool.cache().appending("/yjdownloads")
+	}
 	
 	fileprivate lazy var session : URLSession = {
 		let config = URLSessionConfiguration.default
@@ -36,25 +55,18 @@ public class YJDownloaders: NSObject {
 		return queue
 	}()
 	
-	public var maxRunningCount: Int = 3 {
-		didSet {
-			queue.maxRunningCount = maxRunningCount
-		}
-	}
-	
 	private override init() {
 		super.init()
-	}
-}
- 
-extension YJDownloaders {
-	public class func yj_shared() -> YJDownloaders {
-		return downloaders
 	}
 }
 
 extension YJDownloaders {
 	
+	/// 重置，可以修改默认目录
+	///
+	/// - Parameters:
+	///   - tmpPath: 临时目录
+	///   - cachePath: 存储目录
 	public func yj_reset(_ tmpPath: String? = nil, cachePath: String? = nil) {
 		yj_cancelAll()
 		if let tmpPath = tmpPath {
@@ -68,6 +80,11 @@ extension YJDownloaders {
 		queue.reset()
 	}
 	
+	/// 删除临时文件
+	///
+	/// - Parameters:
+	///   - urls: 按照下载的url删除，如果任务存在可以准确删除，如果任务不存在，会尝试删除默认路径中以url结尾为文件名的文件
+	///   - filePaths: 指定具体目录删除，但是只能是tmp目录下
 	public func yj_removeTmpFiles(_ urls: [URL]? = nil, filePaths: [String]? = nil) {
 		urls?.forEach{
 			if let downloader = queue.downloader(forUrl: $0) {
@@ -86,6 +103,11 @@ extension YJDownloaders {
 		}
 	}
 	
+	/// 删除存储文件
+	///
+	/// - Parameters:
+	///   - urls: 按照下载的url删除，如果任务存在可以准确删除，如果任务不存在，会尝试删除默认路径中以url结尾为文件名的文件
+	///   - filePaths: 指定具体目录删除，但是只能是cache目录下
 	public func yj_removeCacheFiles(_ urls: [URL]? = nil, filePaths: [String]? = nil) {
 		urls?.forEach{
 			if let downloader = queue.downloader(forUrl: $0) {
@@ -103,65 +125,81 @@ extension YJDownloaders {
 		}
 	}
 	
-	public func yj_removeTmp(_ path: String? = nil) {
+	/// 删除当前临时目录所有文件
+	public func yj_removeTmp() {
 		yj_cancelAll()
-		if let path = path {
-			YJFileTool.remove(path)
-		} else {
-			YJFileTool.remove(tmpPath)
-		}
+		YJFileTool.remove(tmpPath)
 	}
 	
-	public func yj_removeCache(_ path: String? = nil) {
-		if let path = path {
-			YJFileTool.remove(path)
-		} else {
-			YJFileTool.remove(cachePath)
-		}
+	/// 删除当前存储目录所有文件
+	public func yj_removeCache() {
+		YJFileTool.remove(cachePath)
 	}
 	
+	/// 添加一个任务
+	///
+	/// - Parameters:
+	///   - url: 下载地址
+	///   - destination: 指定存储路径
+	///   - stateChanged: 任务状态回调
+	///   - progressChanged: 下载进度回调
+	///   - receiveTotalSize: 获取总大小回调
 	public func yj_download(_ url: URL, destination: String? = nil, stateChanged:((YJDownloaderState)->Void)? = nil, progressChanged:((Double)->Void)? = nil, receiveTotalSize: ((UInt64)->Void)? = nil) {
 		
 		queue.addDownloader(url, destination: destination, stateChanged: stateChanged, progressChanged: progressChanged, receiveTotalSize: receiveTotalSize)
 	}
 	
+	/// 暂停指定任务
+	///
+	/// - Parameter url: 下载地址
 	public func yj_pause(_ url: URL) {
 		queue.pause(url)
 	}
 	
+	/// 继续指定任务
+	///
+	/// - Parameter url: 下载地址
 	public func yj_resume(_ url: URL) {
 		queue.resume(url)
 	}
 	
+	/// 取消指定任务
+	///
+	/// - Parameter url: 下载地址
 	public func yj_cancel(_ url: URL) {
 		queue.cancel(url)
 	}
 	
+	/// 销毁指定任务（会删除临时文件）
+	///
+	/// - Parameter url: 下载地址
 	public func yj_destroy(_ url: URL) {
 		queue.destroy(url)
 	}
 	
+	/// 暂停所有正在进行的任务
 	public func yj_pauseAll() {
 		queue.pauseAll()
 	}
 	
+	/// 取消所有任务
 	public func yj_cancelAll() {
 		queue.cancelAll()
 	}
 	
+	/// 恢复所有被取消或暂停的任务
 	public func yj_resumeAll() {
 		queue.resumeAll()
 	}
 	
+	/// 销毁所有任务（会删除临时文件）
 	public func yj_destroyAll() {
 		queue.destroyAll()
 	}
 }
 
-extension YJDownloaders {
-	
-}
 
+// MARK: - URLSessionDataDelegate
 extension YJDownloaders: URLSessionDataDelegate {
 	public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
 		if let url = dataTask.originalRequest?.url, let downloader = queue.downloader(forUrl: url) {
