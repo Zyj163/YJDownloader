@@ -144,9 +144,21 @@ extension YJDownloaders {
 	///   - stateChanged: 任务状态回调
 	///   - progressChanged: 下载进度回调
 	///   - receiveTotalSize: 获取总大小回调
-	public func yj_download(_ url: URL, destination: String? = nil, stateChanged:((YJDownloaderState)->Void)? = nil, progressChanged:((Double)->Void)? = nil, receiveTotalSize: ((UInt64)->Void)? = nil) {
+	///   - specRequest: 自定义请求，默认设置了Range，cachePolicy = .reloadIgnoringLocalCacheData, timeoutInterval = 0
+	public func yj_download(_ url: URL,
+	                        destination: String? = nil,
+	                        stateChanged:((YJDownloaderState)->Void)? = nil,
+	                        progressChanged:((Double)->Void)? = nil,
+	                        receiveTotalSize: ((UInt64)->Void)? = nil,
+	                        specRequest: ((NSMutableURLRequest)->Void)? = nil
+		) {
 		
-		queue.addDownloader(url, destination: destination, stateChanged: stateChanged, progressChanged: progressChanged, receiveTotalSize: receiveTotalSize)
+		queue.addDownloader(url,
+		                    destination: destination,
+		                    stateChanged: stateChanged,
+		                    progressChanged: progressChanged,
+		                    receiveTotalSize: receiveTotalSize,
+		                    specRequest: specRequest)
 	}
 	
 	/// 暂停指定任务
@@ -259,7 +271,13 @@ fileprivate class YJDownloadersQueue {
 		}.forEach { $1.yj_start() }
 	}
 	
-	fileprivate func addDownloader(_ url: URL, destination: String? = nil, stateChanged:((YJDownloaderState)->Void)? = nil, progressChanged:((Double)->Void)? = nil, receiveTotalSize: ((UInt64)->Void)? = nil) {
+	fileprivate func addDownloader(_ url: URL,
+	                               destination: String?,
+	                               stateChanged:((YJDownloaderState)->Void)?,
+	                               progressChanged:((Double)->Void)?,
+	                               receiveTotalSize: ((UInt64)->Void)?,
+	                               specRequest: ((NSMutableURLRequest)->Void)?
+		) {
 		queue.sync {
 			let urlmd5 = url.absoluteString.md5()
 			var downloader = _downloaders[urlmd5]
@@ -285,6 +303,7 @@ fileprivate class YJDownloadersQueue {
 				}
 				item.progressChanged = progressChanged
 				item.receiveTotalSize = receiveTotalSize
+				item.specRequest = specRequest
 				
 				downloader?.yj_download(item, immediately: false)
 			}

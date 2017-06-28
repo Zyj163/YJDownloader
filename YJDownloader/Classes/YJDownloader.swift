@@ -68,6 +68,8 @@ class YJDownloaderItem {
 	var receiveTotalSize: ((UInt64)->Void)?
 	
 	var destination: String?
+	
+	var specRequest: ((NSMutableURLRequest)->Void)?
 }
 
 class YJDownloader: NSObject {
@@ -163,12 +165,12 @@ extension YJDownloader {
 		}
 		
 		guard YJFileTool.exists(downloadingPath) else {
-			download(downloadItem.url)
+			download(downloadItem.url, specRequest: downloadItem.specRequest)
 			return
 		}
 		
 		tmpSize = YJFileTool.size(downloadingPath)
-		download(downloadItem.url, offset: tmpSize)
+		download(downloadItem.url, offset: tmpSize, specRequest: downloadItem.specRequest)
 	}
 	
 	func yj_download(_ item: YJDownloaderItem, immediately: Bool = true) {
@@ -227,15 +229,16 @@ extension YJDownloader {
 
 extension YJDownloader {
 	
-	fileprivate func download(_ url: URL, destination: String? = nil, offset: UInt64 = 0) {
+	fileprivate func download(_ url: URL, offset: UInt64 = 0, specRequest: ((NSMutableURLRequest)->Void)? = nil) {
 		if session == nil {
 			let config = URLSessionConfiguration.default
 			session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
 		}
 		
-		var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 0)
+		let request = NSMutableURLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 0)
 		request.setValue("bytes=\(offset)-", forHTTPHeaderField: "Range")
-		task = session?.dataTask(with: request)
+		specRequest?(request)
+		task = session?.dataTask(with: request as URLRequest)
 		yj_resume()
 	}
 }

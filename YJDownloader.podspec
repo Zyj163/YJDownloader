@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'YJDownloader'
-  s.version          = '0.0.2'
+  s.version          = '0.0.3'
   s.summary          = 'YJDownloader'
 
 # This description is used to generate tags and improve search results.
@@ -24,7 +24,7 @@ YJDownloaders 多任务下载、断点下载.
   s.homepage         = 'https://github.com/Zyj163/YJDownloader'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Zyj163' => 'zyj194250@qq.com' }
+  s.author           = { 'Zyj163' => 'zyj194250@163.com' }
   s.source           = { :git => 'https://github.com/Zyj163/YJDownloader.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
