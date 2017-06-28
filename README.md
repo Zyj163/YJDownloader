@@ -24,7 +24,7 @@ pod "YJDownloader", :git => 'https://github.com/Zyj163/YJDownloader.git'
 
 ## Author
 
-Zyj163, zhangyongjun@pj-l.com
+Zyj163, zyj194250@163.com
 
 ## License
 
