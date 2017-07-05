@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MobileCoreServices
 
 public class YJFileTool {
 
@@ -46,4 +47,12 @@ public class YJFileTool {
 		}
 		return 0
 	}
+    
+    public class func contentType(_ url: URL) -> String? {
+        let fileExtension = (url.absoluteString as NSString).pathExtension
+        let contentTypeCFManager = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension as CFString, nil)
+        let contentTypeCF = contentTypeCFManager?.takeUnretainedValue()
+        contentTypeCFManager?.release()
+        return contentTypeCF as String?
+    }
 }
