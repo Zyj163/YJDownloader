@@ -41,10 +41,10 @@ class ViewController: UIViewController {
 	
 	@IBAction func download(_ sender: UIButton) {
 		
-		downloaders.yj_download(url(for: sender.tag), stateChanged: {[weak self]  (state: YJDownloaderState) in
-			switch state {
-			case .paused(let downloadingPath, let downloadedPath):
-				print("pause tag:\(sender.tag), downloadingPath: \(downloadingPath), downloadedPath: \(downloadedPath)")
+        downloaders.yj_download(url(for: sender.tag), stateChanged: {[weak self]  (state: YJDownloaderState, newState: YJDownloaderState) in
+			switch newState {
+			case .paused:
+				print("pause")
 				self?.setLabel(sender.tag, color: .purple)
 			case .downloading:
 				self?.setLabel(sender.tag, color: .green)
@@ -66,9 +66,9 @@ class ViewController: UIViewController {
 		}, progressChanged: {[weak self] (progress: Double) in
 			self?.setProgress(sender.tag, value: progress)
 			self?.setLabel(sender.tag, color: .green, value: String(format: "%.2f", progress))
-		}) { (totalSize: UInt64) in
+        }, receiveTotalSize: { (totalSize: UInt64) in
 			print("totalSize: \(totalSize), tag:\(sender.tag)")
-		}
+		})
 		
 	}
 
