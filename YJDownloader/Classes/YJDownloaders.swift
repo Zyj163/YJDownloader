@@ -147,7 +147,7 @@ extension YJDownloaders {
 	///   - specRequest: 自定义请求，默认设置了Range，cachePolicy = .reloadIgnoringLocalCacheData, timeoutInterval = 0
 	public func yj_download(_ url: URL,
 	                        destination: String? = nil,
-	                        stateChanged:((YJDownloaderState)->Void)? = nil,
+	                        stateChanged:((YJDownloaderState, YJDownloaderState)->Void)? = nil,
 	                        progressChanged:((Double)->Void)? = nil,
 	                        receiveTotalSize: ((UInt64)->Void)? = nil,
 	                        specRequest: ((NSMutableURLRequest)->Void)? = nil
@@ -241,7 +241,7 @@ fileprivate class YJDownloadersQueue {
 	var maxRunningCount: Int = 3
 	
 	fileprivate var currentCount: Int {
-		return _downloaders.filter { $1.state == .downloading }.count
+		return _downloaders.filter { $1.state == YJDownloaderState.downloading }.count
 	}
 	
 	fileprivate let queue = DispatchQueue(label: "yjdownloads-queue")
@@ -273,7 +273,7 @@ fileprivate class YJDownloadersQueue {
 	
 	fileprivate func addDownloader(_ url: URL,
 	                               destination: String?,
-	                               stateChanged:((YJDownloaderState)->Void)?,
+	                               stateChanged:((YJDownloaderState, YJDownloaderState)->Void)?,
 	                               progressChanged:((Double)->Void)?,
 	                               receiveTotalSize: ((UInt64)->Void)?,
 	                               specRequest: ((NSMutableURLRequest)->Void)?
@@ -288,9 +288,9 @@ fileprivate class YJDownloadersQueue {
 				let item = YJDownloaderItem()
 				item.url = url
 				item.destination = destination
-				item.stateChanged = {[weak self] (state: YJDownloaderState) in
+                item.stateChanged = {[weak self] (state: YJDownloaderState, newState: YJDownloaderState) in
 					
-					switch state {
+					switch newState {
 					case .success, .failed:
 						self?._downloaders.removeValue(forKey: urlmd5)
 						self?.start()
@@ -299,7 +299,7 @@ fileprivate class YJDownloadersQueue {
 					default:
 						break
 					}
-					stateChanged?(state)
+					stateChanged?(state, newState)
 				}
 				item.progressChanged = progressChanged
 				item.receiveTotalSize = receiveTotalSize
@@ -341,7 +341,7 @@ fileprivate class YJDownloadersQueue {
 	fileprivate func resume(_ url: URL) {
 		
 		if let downloader = downloader(forUrl: url) {
-			if currentCount >= maxRunningCount && downloader.state.value != YJDownloaderState.downloading.value {
+			if currentCount >= maxRunningCount && downloader.state != YJDownloaderState.downloading {
 				downloader.yj_setWaitting()
 			} else {
 				downloader.yj_resume()

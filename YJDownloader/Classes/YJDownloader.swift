@@ -16,6 +16,10 @@ public func == (left: YJDownloaderState, right: (String)->YJDownloaderState) -> 
 	return left.value == right("").value
 }
 
+public func != (left: YJDownloaderState, right: (String)->YJDownloaderState) -> Bool {
+    return left.value != right("").value
+}
+
 public func == (left: YJDownloaderState, right: (String, String)->YJDownloaderState) -> Bool {
 	return left.value == right("", "").value
 }
@@ -32,7 +36,7 @@ public enum YJDownloaderState {
 	case unknown
 	case paused(String, String)
 	case cancelled(String, String)
-	case downloading
+	case downloading(String?) //mimetype
 	case failed(Error?)
 	case success(String) //文件路径
 	case waitting
@@ -40,7 +44,7 @@ public enum YJDownloaderState {
 	var value: String {
 		switch self {
 		case .unknown:
-			return "unknown"
+            return "unknown"
 		case .paused:
 			return "paused"
 		case .cancelled:
@@ -57,22 +61,22 @@ public enum YJDownloaderState {
 	}
 }
 
-class YJDownloaderItem {
+public class YJDownloaderItem {
 	
-	var url: URL!
+	public var url: URL!
 	
-	var stateChanged: ((YJDownloaderState)->Void)?
+	public var stateChanged: ((YJDownloaderState, YJDownloaderState)->Void)?
 	
-	var progressChanged: ((Double)->Void)?
+	public var progressChanged: ((Double)->Void)?
 	
-	var receiveTotalSize: ((UInt64)->Void)?
+	public var receiveTotalSize: ((UInt64)->Void)?
 	
-	var destination: String?
+	public var destination: String?
 	
-	var specRequest: ((NSMutableURLRequest)->Void)?
+	public var specRequest: ((NSMutableURLRequest)->Void)?
 }
 
-class YJDownloader: NSObject {
+public class YJDownloader: NSObject {
 	
 	fileprivate weak var task: URLSessionDataTask?
 	fileprivate var downloadPath: String?
@@ -89,10 +93,7 @@ class YJDownloader: NSObject {
 
 	fileprivate var _state: YJDownloaderState = .unknown {
 		didSet {
-			if _state == oldValue {
-				return
-			}
-			downloadItem.stateChanged?(state)
+			downloadItem.stateChanged?(oldValue, _state)
 		}
 	}
 	
@@ -106,18 +107,28 @@ class YJDownloader: NSObject {
 	}
 	
 	fileprivate var downloadItem: YJDownloaderItem!
+    
+    fileprivate var _mimeType: String?
+    
+    fileprivate var _lastOffset: UInt64 = 0
+    
+    public var lastOffset: UInt64 {
+        return _lastOffset
+    }
+    
+    public var mimeType: String? {return _mimeType}
 	
-	var state: YJDownloaderState {
+	public var state: YJDownloaderState {
 		return _state
 	}
 	
-	var progress: Double {
+	public var progress: Double {
 		return _progress
 	}
 }
 
 extension YJDownloader {
-	convenience init(_ session: URLSession? = nil, tmpPath: String? = nil, cachePath: String? = nil) {
+	public convenience init(_ session: URLSession? = nil, tmpPath: String? = nil, cachePath: String? = nil) {
 		self.init()
 		self.session = session
 		self.tmpPath = tmpPath
@@ -137,7 +148,7 @@ extension YJDownloader {
 
 extension YJDownloader {
 	
-	func yj_start() {
+	public func yj_start() {
 		let fileName = downloadItem.url!.lastPathComponent
 		
 		downloadingPath = tmpPath!.appending("/\(fileName)")
@@ -149,12 +160,16 @@ extension YJDownloader {
 		}
 		
 		if self.downloadItem.url == task?.originalRequest?.url {
-			if state == .paused(downloadingPath!, downloadPath!) {
-				yj_resume()
-				return
-			} else if state == .downloading {
-				return
-			}
+            
+            switch state {
+            case .paused:
+                yj_resume()
+                return
+            case .downloading:
+                return
+            default:
+                break
+            }
 		}
 		
 		yj_cancel()
@@ -173,7 +188,7 @@ extension YJDownloader {
 		download(downloadItem.url, offset: tmpSize, specRequest: downloadItem.specRequest)
 	}
 	
-	func yj_download(_ item: YJDownloaderItem, immediately: Bool = true) {
+	public func yj_download(_ item: YJDownloaderItem, immediately: Bool = true) {
 		self.downloadItem = item
 		if immediately {
 			yj_start()
@@ -182,46 +197,52 @@ extension YJDownloader {
 		}
 	}
 	
-	func yj_cancel() {
+	public func yj_cancel() {
 		task?.cancel()
 		_state = .cancelled(downloadingPath!, downloadPath!)
 	}
 	
-	func yj_resume() {
+	public func yj_resume() {
 		if let task = task, _state == YJDownloaderState.paused || _state == YJDownloaderState.cancelled {
 			task.resume()
-			_state = .downloading
+			_state = .downloading(mimeType)
 		}
 	}
 	
-	func yj_pause() {
-		if _state == .downloading {
-			task?.suspend()
-			_state = .paused(downloadingPath!, downloadPath!)
-		}
+	public func yj_pause() {
+        switch state {
+        case .downloading:
+            task?.suspend()
+            _state = .paused(downloadingPath!, downloadPath!)
+        default:
+            break
+        }
 	}
 	
-	func yj_setWaitting() {
-		if state == .downloading {
-			return
-		}
+	public func yj_setWaitting() {
+        switch state {
+        case .downloading:
+            return
+        default:
+            break
+        }
 		
 		if let _ = task {
 			_state = .waitting
 		}
 	}
 	
-	func yj_destroy() {
+	public func yj_destroy() {
 		yj_cancel()
 		YJFileTool.remove(downloadingPath)
 	}
 	
-	func yj_removeTmp() {
+	public func yj_removeTmp() {
 		yj_cancel()
 		YJFileTool.remove(downloadingPath)
 	}
 	
-	func yj_removeCache() {
+	public func yj_removeCache() {
 		YJFileTool.remove(downloadPath)
 	}
 }
@@ -229,12 +250,12 @@ extension YJDownloader {
 
 extension YJDownloader {
 	
-	fileprivate func download(_ url: URL, offset: UInt64 = 0, specRequest: ((NSMutableURLRequest)->Void)? = nil) {
+	public func download(_ url: URL, offset: UInt64 = 0, specRequest: ((NSMutableURLRequest)->Void)? = nil) {
 		if session == nil {
 			let config = URLSessionConfiguration.default
 			session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
 		}
-		
+		_lastOffset = offset
 		let request = NSMutableURLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 0)
 		request.setValue("bytes=\(offset)-", forHTTPHeaderField: "Range")
 		specRequest?(request)
@@ -244,13 +265,14 @@ extension YJDownloader {
 }
 
 extension YJDownloader: URLSessionDataDelegate {
-	func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+	public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
 		
 		totalSize = UInt64((response as! HTTPURLResponse).allHeaderFields["Content-Length"] as? String ?? "0") ?? 0
 		if let contentRangeStr = (response as! HTTPURLResponse).allHeaderFields["Content-Range"] as? String, contentRangeStr.characters.count != 0, let lastStr = contentRangeStr.components(separatedBy: "/").last {
 			totalSize = UInt64(lastStr) ?? 0
 		}
 		
+        _mimeType = response.mimeType
 		downloadItem.receiveTotalSize?(totalSize)
 		
 		if tmpSize > 0, tmpSize == totalSize {
@@ -264,13 +286,13 @@ extension YJDownloader: URLSessionDataDelegate {
 			return
 		}
 		
-		_state = .downloading
+		_state = .downloading(mimeType)
 		output = OutputStream(toFileAtPath: downloadingPath!, append: true)
 		output?.open()
 		completionHandler(.allow)
 	}
 	
-	func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+	public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
 		tmpSize = UInt64(data.count) + tmpSize
 		
 		_progress = Double(tmpSize) / Double(totalSize)
@@ -278,9 +300,11 @@ extension YJDownloader: URLSessionDataDelegate {
 		let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
 		data.copyBytes(to: buffer, count: data.count)
 		output?.write(buffer, maxLength: data.count)
+        
+        _state = .downloading(mimeType)
 	}
 	
-	func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+	public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
 		if error == nil {
 			if YJFileTool.size(downloadingPath) == totalSize {
 				YJFileTool.move(downloadingPath, toPath: downloadPath)
@@ -297,7 +321,12 @@ extension YJDownloader: URLSessionDataDelegate {
 				_state = .failed(error)
 			}
 		}
-		output?.close()
+        switch state {
+        case .success, .failed:
+            output?.close()
+        default:
+            break
+        }
 	}
 }
 
