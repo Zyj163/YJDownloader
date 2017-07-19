@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'YJDownloader'
-  s.version          = '0.2.1'
+  s.version          = '0.2.4'
   s.summary          = 'YJDownloader'
 
 # This description is used to generate tags and improve search results.

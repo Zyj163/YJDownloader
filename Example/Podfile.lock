@@ -1,6 +1,6 @@
 PODS:
   - CryptoSwift (0.6.9)
-  - YJDownloader (0.2.1):
+  - YJDownloader (0.2.4):
     - CryptoSwift
 
 DEPENDENCIES:
@@ -9,11 +9,11 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   YJDownloader:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   CryptoSwift: a22f6ba238e9ce4d26ee7bf45b9ed82e7122d4a0
-  YJDownloader: 27dae486f09aa8e98d505be3d620984fb81c602a
+  YJDownloader: 884873dec71f4eb6c0f7b7ae1460d09d8a2b6a40
 
 PODFILE CHECKSUM: bf718f6ac188dcfa88902bf9f5d463b0ad9fcf19
 
