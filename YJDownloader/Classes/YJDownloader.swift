@@ -44,7 +44,7 @@ public enum YJDownloaderState {
     case unknown
     case paused(String, String)
     case cancelled(String, String)
-    case downloading(UInt64) //触发这个状态时正在接收的数据大小
+    case downloading(UInt64) //触发这个状态时正在接收的数据包大小
     case failed(Error?)
     case success(String) //文件路径
     case waitting
